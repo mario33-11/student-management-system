@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Header Section - Exactly like Figma -->
+    <div class="header">
+        <h1>Student Management System</h1>
+        <p>Manage student information efficiently</p>
+    </div>
+
+    <!-- Top Controls Section -->
+    <div class="top-controls">
+        <h2 class="section-title">Student List</h2>
+        
+        <!-- Search Box -->
+        <div class="search-container">
+            <form method="POST" action="{{ url_for('search') }}" class="search-form">
+                {{ search_form.hidden_tag() }}
+                {{ search_form.search_query(class="search-input", placeholder="Search by ID, Name or Email") }}
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Add New Student Button -->
+        <a href="{{ url_for('add_student') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Add New Student
+        </a>
+    </div>
+
+    <!-- Students Table -->
+    <div class="table-container">
+        {% if students %}
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Enrollment Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.id }}</td>
+                        <td>{{ student.full_name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.phone }}</td>
+                        <td>{{ student.department }}</td>
+                        <td>{{ student.enrollment_date.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('details', id=student.id) }}" class="btn-icon btn-info" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('edit_student', id=student.id) }}" class="btn-icon btn-edit" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_student', id=student.id) }}" style="display: inline;" onsubmit="return confirmDelete('{{ student.full_name }}')">
+                                    <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                {% if search_performed %}
+                    <h3>No students found</h3>
+                    <p>No students match your search criteria. Try a different search term.</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to all students
+                    </a>
+                {% else %}
+                    <h3>No students yet</h3>
+                    <p>Start by adding your first student to the system.</p>
+                    <a href="{{ url_for('add_student') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add First Student
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
