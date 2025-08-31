@@ -11,13 +11,16 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
-    # Initialize extensions
     db.init_app(app)
     migrate = Migrate(app, db)
     
     return app
 
 app = create_app()
+
+# Automatically create tables
+with app.app_context():
+    db.create_all()
 
 # Routes
 @app.route('/')
@@ -36,12 +39,10 @@ def search():
     if form.validate_on_submit():
         search_query = form.search_query.data.strip()
         
-        # Try to search by ID first (if it's a number)
         try:
             student_id = int(search_query)
             students = Student.query.filter_by(id=student_id).all()
         except ValueError:
-            # Search by name or email if not a number
             students = Student.query.filter(
                 db.or_(
                     Student.full_name.contains(search_query),
